@@ -3,6 +3,8 @@ body {
 	align-items: center;
 	display: flex;
 	justify-content: center;
+	font-family: Roboto;
+	font-weight: 100;
 }
 div#repo {
 	text-align: center;
