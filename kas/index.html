@@ -1,10 +1,8 @@
 <html>
 <head>
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 	<script type="text/javascript">
 		var urlRegex = /(https?:\/\/[^ ]*)>/;
-
-		let url = 'https://api.github.com/repos/kubernetes/autoscaler/stargazers';
+		var url;
 
 		function setTotalStars(totalStars) {
 			console.log(totalStars);
@@ -24,38 +22,34 @@
 			)
 		}
 
-		fetch(url).then(function(response) {
-				var link = response.headers.get("link");
-				//console.log(link);
-				var lastPage = link.split(",")[1].match(urlRegex)[1];
-				//console.log(lastPage);
-				var lastPageNum = lastPage.split("?")[1].split("=")[1];
-				//console.log(lastPageNum);
-				loadLastPage(lastPage, lastPageNum);
-				return response.json()
-			}
-		).then(function(json) {
-				//console.log(json);
-			}
-		).catch(function(error) {
-				console.log(error);
-			}
-		)
+		document.addEventListener("DOMContentLoaded", function(event) {
+			var repo = window.location.href.split("?")[1];
+			document.getElementById("repo").innerHTML = repo;
+			url = 'https://api.github.com/repos/' + repo + '/stargazers';
+
+			fetch(url).then(function(response) {
+					var link = response.headers.get("link");
+					var lastPage = link.split(",")[1].match(urlRegex)[1];
+					var lastPageNum = lastPage.split("?")[1].split("=")[1];
+					loadLastPage(lastPage, lastPageNum);
+					return response.json()
+				}
+			).then(function(json) {
+					//console.log(json);
+				}
+			).catch(function(error) {
+					console.log(error);
+				}
+			)
+		});
+
 	</script>
-	<style type="text/css">
-		body {
-			width: 100%;
-			height: 100%;
-			margin: 0;
-			text-align: center;
-		}
-		div#stars {
-			margin: 0 auto;
-			font-size: 30em;
-		}
-	</style>
+	<link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body>
-	<div id="stars"></div>
+	<div id="box">
+		<div id="repo">...</div>
+		<div id="stars-wrapper">★<span id="stars">...</span></div>
+	</div>
 </body>
 </html>
