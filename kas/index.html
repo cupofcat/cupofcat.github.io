@@ -1,0 +1,61 @@
+<html>
+<head>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	<script type="text/javascript">
+		var urlRegex = /(https?:\/\/[^ ]*)>/;
+
+		let url = 'https://api.github.com/repos/kubernetes/autoscaler/stargazers';
+
+		function setTotalStars(totalStars) {
+			console.log(totalStars);
+			document.getElementById("stars").innerHTML = totalStars;
+		}
+
+		function loadLastPage(lastPage, lastPageNum) {
+			fetch(lastPage).then(function(response) {
+				return response.json()
+				}
+			).then(function(json) {
+					setTotalStars((lastPageNum-1) * 30 + json.length);
+				}
+			).catch(function(error) {
+					console.log(error);
+				}
+			)
+		}
+
+		fetch(url).then(function(response) {
+				var link = response.headers.get("link");
+				//console.log(link);
+				var lastPage = link.split(",")[1].match(urlRegex)[1];
+				//console.log(lastPage);
+				var lastPageNum = lastPage.split("?")[1].split("=")[1];
+				//console.log(lastPageNum);
+				loadLastPage(lastPage, lastPageNum);
+				return response.json()
+			}
+		).then(function(json) {
+				//console.log(json);
+			}
+		).catch(function(error) {
+				console.log(error);
+			}
+		)
+	</script>
+	<style type="text/css">
+		body {
+			width: 100%;
+			height: 100%;
+			margin: 0;
+			text-align: center;
+		}
+		div#stars {
+			margin: 0 auto;
+			font-size: 30em;
+		}
+	</style>
+</head>
+<body>
+	<div id="stars"></div>
+</body>
+</html>
