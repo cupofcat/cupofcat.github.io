@@ -1,17 +1,15 @@
 <html>
 <head>
 	<script type="text/javascript">
-		var urlRegex = /(https?:\/\/[^ ]*)>/;
-		var url;
+		var URL_REGEX = /(https?:\/\/[^ ]*)>/;
 
 		function setTotalStars(totalStars) {
-			console.log(totalStars);
 			document.getElementById("stars").innerHTML = totalStars;
 		}
 
 		function loadLastPage(lastPage, lastPageNum) {
 			fetch(lastPage).then(function(response) {
-				return response.json()
+					return response.json()
 				}
 			).then(function(json) {
 					setTotalStars((lastPageNum-1) * 30 + json.length);
@@ -22,26 +20,26 @@
 			)
 		}
 
-		document.addEventListener("DOMContentLoaded", function(event) {
+		function processFirstPage(response) {
+			var link = response.headers.get("link");
+			var lastPage = link.split(",")[1].match(URL_REGEX)[1];
+			var lastPageNum = lastPage.split("?")[1].split("=")[1];
+			loadLastPage(lastPage, lastPageNum);
+			return response.json()
+		}
+
+		function onPageLoaded(event) {
 			var repo = window.location.href.split("?")[1];
 			document.getElementById("repo").innerHTML = repo;
-			url = 'https://api.github.com/repos/' + repo + '/stargazers';
+			var url = 'https://api.github.com/repos/' + repo + '/stargazers';
 
-			fetch(url).then(function(response) {
-					var link = response.headers.get("link");
-					var lastPage = link.split(",")[1].match(urlRegex)[1];
-					var lastPageNum = lastPage.split("?")[1].split("=")[1];
-					loadLastPage(lastPage, lastPageNum);
-					return response.json()
-				}
-			).then(function(json) {
-					//console.log(json);
-				}
-			).catch(function(error) {
-					console.log(error);
-				}
-			)
-		});
+			fetch(url).then(processFirstPage)
+			.catch(function(error) {
+				console.log(error);
+			})
+		}
+
+		document.addEventListener("DOMContentLoaded", onPageLoaded);
 
 	</script>
 	<link rel="stylesheet" href="style.css" type="text/css">
